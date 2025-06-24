@@ -2,18 +2,19 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Droplets, Sun, Thermometer, Bug, Leaf, Flower } from "lucide-react";
+import { Droplets, Sun, Thermometer, Bug, Leaf, Flower, AlertTriangle, CheckCircle } from "lucide-react";
 
 interface PlantData {
   name: string;
   scientificName: string;
   confidence: number;
+  healthStatus: string;
   description: string;
   care: {
     water: string;
-    light: string;
     temperature: string;
-    humidity: string;
+    soil: string;
+    spacing: string;
   };
   fertilizers: Array<{
     name: string;
@@ -28,7 +29,7 @@ interface PlantData {
     safety: string;
   }>;
   diseases: string[];
-  tips: string[];
+  recommendations: string[];
 }
 
 interface PlantResultProps {
@@ -36,6 +37,24 @@ interface PlantResultProps {
 }
 
 const PlantResult = ({ plantData }: PlantResultProps) => {
+  const getHealthStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'healthy': return 'bg-green-100 text-green-700 border-green-300';
+      case 'stressed': return 'bg-yellow-100 text-yellow-700 border-yellow-300';
+      case 'diseased': return 'bg-red-100 text-red-700 border-red-300';
+      default: return 'bg-gray-100 text-gray-700 border-gray-300';
+    }
+  };
+
+  const getHealthIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'healthy': return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case 'stressed': 
+      case 'diseased': return <AlertTriangle className="w-5 h-5 text-red-600" />;
+      default: return <Leaf className="w-5 h-5 text-gray-600" />;
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Plant Info Header */}
@@ -46,10 +65,16 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
               <CardTitle className="text-2xl text-green-800 mb-2">
                 {plantData.name}
               </CardTitle>
-              <p className="text-green-600 italic mb-2">{plantData.scientificName}</p>
-              <Badge variant="secondary" className="bg-green-100 text-green-700">
-                {plantData.confidence}% Confidence
-              </Badge>
+              <p className="text-green-600 italic mb-3">{plantData.scientificName}</p>
+              <div className="flex gap-3 mb-3">
+                <Badge variant="secondary" className="bg-green-100 text-green-700">
+                  {plantData.confidence}% Confidence
+                </Badge>
+                <Badge variant="outline" className={getHealthStatusColor(plantData.healthStatus)}>
+                  {getHealthIcon(plantData.healthStatus)}
+                  <span className="ml-1 capitalize">{plantData.healthStatus}</span>
+                </Badge>
+              </div>
             </div>
             <div className="bg-green-100 p-3 rounded-lg">
               <Leaf className="w-8 h-8 text-green-600" />
@@ -61,13 +86,35 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
         </CardContent>
       </Card>
 
+      {/* Recommendations Card - Show if plant is not healthy */}
+      {plantData.healthStatus !== 'healthy' && (
+        <Card className="border-orange-200 bg-orange-50/30">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg text-orange-800">
+              <AlertTriangle className="w-5 h-5 mr-2" />
+              Immediate Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {plantData.recommendations.map((recommendation, index) => (
+                <li key={index} className="flex items-start">
+                  <span className="w-2 h-2 bg-orange-400 rounded-full mr-3 mt-2"></span>
+                  <span className="text-sm text-orange-700">{recommendation}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Detailed Information Tabs */}
       <Tabs defaultValue="care" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="care">Plant Care</TabsTrigger>
+          <TabsTrigger value="care">Care Guide</TabsTrigger>
           <TabsTrigger value="fertilizers">Fertilizers</TabsTrigger>
-          <TabsTrigger value="pesticides">Pest Control</TabsTrigger>
-          <TabsTrigger value="health">Plant Health</TabsTrigger>
+          <TabsTrigger value="protection">Plant Protection</TabsTrigger>
+          <TabsTrigger value="diseases">Disease Info</TabsTrigger>
         </TabsList>
 
         <TabsContent value="care" className="mt-6">
@@ -76,7 +123,7 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-lg">
                   <Droplets className="w-5 h-5 mr-2 text-blue-600" />
-                  Watering
+                  Irrigation
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -85,18 +132,6 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
             </Card>
 
             <Card className="border-yellow-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center text-lg">
-                  <Sun className="w-5 h-5 mr-2 text-yellow-600" />
-                  Light Requirements
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700">{plantData.care.light}</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-red-200">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-lg">
                   <Thermometer className="w-5 h-5 mr-2 text-red-600" />
@@ -108,15 +143,27 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
               </CardContent>
             </Card>
 
-            <Card className="border-purple-200">
+            <Card className="border-green-200">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-lg">
-                  <Droplets className="w-5 h-5 mr-2 text-purple-600" />
-                  Humidity
+                  <Leaf className="w-5 h-5 mr-2 text-green-600" />
+                  Soil Requirements
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-700">{plantData.care.humidity}</p>
+                <p className="text-gray-700">{plantData.care.soil}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-purple-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center text-lg">
+                  <Sun className="w-5 h-5 mr-2 text-purple-600" />
+                  Plant Spacing
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700">{plantData.care.spacing}</p>
               </CardContent>
             </Card>
           </div>
@@ -145,7 +192,7 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="pesticides" className="mt-6">
+        <TabsContent value="protection" className="mt-6">
           <div className="space-y-4">
             {plantData.pesticides.map((pesticide, index) => (
               <Card key={index} className="border-orange-200">
@@ -171,46 +218,25 @@ const PlantResult = ({ plantData }: PlantResultProps) => {
           </div>
         </TabsContent>
 
-        <TabsContent value="health" className="mt-6">
-          <div className="grid md:grid-cols-2 gap-6">
-            <Card className="border-red-200">
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Flower className="w-5 h-5 mr-2 text-red-600" />
-                  Common Diseases
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {plantData.diseases.map((disease, index) => (
-                    <li key={index} className="flex items-center">
-                      <span className="w-2 h-2 bg-red-400 rounded-full mr-3"></span>
-                      {disease}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card className="border-green-200">
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Leaf className="w-5 h-5 mr-2 text-green-600" />
-                  Care Tips
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {plantData.tips.map((tip, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="w-2 h-2 bg-green-400 rounded-full mr-3 mt-2"></span>
-                      <span className="text-sm">{tip}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
+        <TabsContent value="diseases" className="mt-6">
+          <Card className="border-red-200">
+            <CardHeader>
+              <CardTitle className="flex items-center text-lg">
+                <Flower className="w-5 h-5 mr-2 text-red-600" />
+                Common Diseases to Monitor
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {plantData.diseases.map((disease, index) => (
+                  <li key={index} className="flex items-center">
+                    <span className="w-2 h-2 bg-red-400 rounded-full mr-3"></span>
+                    {disease}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
