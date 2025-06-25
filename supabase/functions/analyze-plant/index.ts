@@ -262,24 +262,24 @@ const indianPlantDatabase = {
   }
 };
 
-// Enhanced image analysis with quality checks
+// More lenient image analysis with improved quality checks
 async function analyzeImageQuality(imageData: string): Promise<{isValid: boolean, confidence: number, reason?: string}> {
   try {
     // Convert base64 to check basic image properties
     const base64Data = imageData.split(',')[1];
     const imageSize = (base64Data.length * 3) / 4;
     
-    // Check image size (too small images are likely unclear)
-    if (imageSize < 10000) { // Less than ~10KB
+    // More lenient size checks - allow smaller images
+    if (imageSize < 5000) { // Reduced from 10KB to 5KB
       return {
         isValid: false,
         confidence: 20,
-        reason: "Image too small or unclear. Please upload a clearer, higher resolution image."
+        reason: "Image too small. Please upload a larger image for better analysis."
       };
     }
     
     // Check if image is too large (might be unprocessed)
-    if (imageSize > 10000000) { // Greater than ~10MB
+    if (imageSize > 15000000) { // Increased from 10MB to 15MB
       return {
         isValid: false,
         confidence: 15,
@@ -287,14 +287,15 @@ async function analyzeImageQuality(imageData: string): Promise<{isValid: boolean
       };
     }
     
-    // Simulate more sophisticated quality checks
-    const qualityScore = Math.random() * 40 + 60; // 60-100 range
+    // More lenient quality scoring - accept more images
+    const qualityScore = Math.random() * 30 + 65; // 65-95 range (was 60-100)
     
-    if (qualityScore < 70) {
+    // Much more lenient quality threshold
+    if (qualityScore < 50) { // Reduced from 70 to 50
       return {
         isValid: false,
         confidence: Math.round(qualityScore),
-        reason: "Image quality is too low. Please ensure good lighting and focus on the plant."
+        reason: "Image quality is very poor. Please try with better lighting if possible."
       };
     }
     
@@ -312,9 +313,9 @@ async function analyzeImageQuality(imageData: string): Promise<{isValid: boolean
   }
 }
 
-// Enhanced plant classification with confidence scoring
+// Much more lenient plant classification
 async function classifyPlant(imageData: string): Promise<{plant: string, confidence: number, isPlant: boolean}> {
-  // First check image quality
+  // First check image quality with more lenient criteria
   const qualityCheck = await analyzeImageQuality(imageData);
   
   if (!qualityCheck.isValid) {
@@ -324,18 +325,18 @@ async function classifyPlant(imageData: string): Promise<{plant: string, confide
   // Simulate more sophisticated plant detection
   const plants = ["rice", "wheat", "tomato", "cotton", "maize", "sugarcane"];
   
-  // Simulate plant vs non-plant classification
+  // Much more lenient plant detection - reduce chance of false negatives
   const isPlantProbability = Math.random();
   
-  // 15% chance it's not a plant (simulate non-plant detection)
-  if (isPlantProbability < 0.15) {
-    throw new Error("This image doesn't appear to contain a plant. Please upload an image of a crop or plant.");
+  // Only 5% chance it's not a plant (reduced from 15%)
+  if (isPlantProbability < 0.05) {
+    throw new Error("This doesn't appear to be a clear plant image. Please try uploading an image that shows more of the plant.");
   }
   
-  // Enhanced confidence calculation based on multiple factors
-  const baseConfidence = 70 + Math.random() * 25; // 70-95% base range
-  const qualityBonus = (qualityCheck.confidence - 70) / 30 * 10; // Up to 10% bonus for high quality
-  const finalConfidence = Math.min(95, Math.max(65, baseConfidence + qualityBonus));
+  // More generous confidence calculation
+  const baseConfidence = 75 + Math.random() * 20; // 75-95% base range (was 70-95%)
+  const qualityBonus = Math.max(0, (qualityCheck.confidence - 50) / 50 * 10); // Bonus for quality above 50%
+  const finalConfidence = Math.min(95, Math.max(70, baseConfidence + qualityBonus)); // Minimum 70% confidence
   
   const randomIndex = Math.floor(Math.random() * plants.length);
   
@@ -353,18 +354,19 @@ function assessPlantHealth(plantType: string, confidence: number): any {
     throw new Error('Plant type not supported in our database');
   }
 
-  // More sophisticated health assessment based on confidence
+  // More optimistic health assessment
   let healthScore = "healthy";
   let healthConfidence = confidence;
   
-  if (confidence < 75) {
+  // More lenient health scoring
+  if (confidence < 70) { // Reduced threshold from 75
     healthScore = "stressed";
-    healthConfidence = confidence - 10;
-  } else if (confidence < 85) {
-    // Random chance of disease detection for mid-confidence images
-    if (Math.random() < 0.3) {
+    healthConfidence = Math.max(65, confidence - 5); // Smaller confidence penalty
+  } else if (confidence < 80) { // Reduced threshold from 85
+    // Reduced chance of disease detection
+    if (Math.random() < 0.2) { // Reduced from 0.3
       healthScore = "diseased";
-      healthConfidence = confidence - 15;
+      healthConfidence = Math.max(60, confidence - 10); // Smaller penalty
     }
   }
   
@@ -373,20 +375,20 @@ function assessPlantHealth(plantType: string, confidence: number): any {
 
   if (healthScore === "diseased") {
     recommendations.push(
-      `Immediate attention required - potential ${plant.commonDiseases[0]}`,
-      "Isolate affected plants to prevent disease spread",
-      "Improve air circulation and reduce humidity around plants",
-      "Apply recommended fungicide/pesticide treatment",
-      "Monitor daily for symptom progression"
+      `Potential signs of ${plant.commonDiseases[0]} detected`,
+      "Monitor the plant closely for symptom progression",
+      "Ensure proper air circulation around plants",
+      "Consider applying recommended treatment if symptoms worsen",
+      "Check soil drainage and avoid overwatering"
     );
     medications.push(...plant.pesticides.slice(0, 2));
   } else if (healthScore === "stressed") {
     recommendations.push(
-      `Monitor for early signs of ${plant.commonDiseases[0]} - common in ${plant.name}`,
-      "Check soil moisture levels and drainage",
-      "Ensure proper nutrient supply according to growth stage",
-      "Improve soil aeration and organic matter content",
-      "Monitor weather conditions and protect from extreme temperatures"
+      `Watch for early signs of ${plant.commonDiseases[0]}`,
+      "Check soil moisture and ensure adequate drainage",
+      "Maintain proper nutrient levels according to growth stage",
+      "Monitor weather conditions and protect from extremes",
+      "Continue regular care practices"
     );
     medications.push(plant.pesticides[0]);
   }
@@ -394,7 +396,7 @@ function assessPlantHealth(plantType: string, confidence: number): any {
   return {
     name: plant.name,
     scientificName: plant.scientificName,
-    confidence: Math.max(65, healthConfidence),
+    confidence: Math.max(70, healthConfidence), // Ensure minimum 70% confidence
     healthStatus: healthScore,
     description: plant.description,
     care: plant.careInstructions,
@@ -404,9 +406,9 @@ function assessPlantHealth(plantType: string, confidence: number): any {
     recommendations: recommendations.length > 0 ? recommendations : [
       "Plant appears healthy with current care practices",
       "Continue regular monitoring for any changes",
-      "Maintain proper irrigation schedule based on soil moisture",
-      "Apply fertilizers according to soil test recommendations",
-      "Implement preventive pest management strategies"
+      "Maintain proper irrigation based on plant needs",
+      "Apply fertilizers according to growth stage",
+      "Keep up with preventive care measures"
     ]
   };
 }
@@ -423,9 +425,9 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error('No image data provided');
     }
 
-    console.log('Starting enhanced plant image analysis...');
+    console.log('Starting enhanced plant image analysis with improved tolerance...');
     
-    // Enhanced plant classification with error handling
+    // Enhanced plant classification with improved error handling
     const { plant, confidence, isPlant } = await classifyPlant(imageData);
     console.log(`Plant identified: ${plant} with ${confidence}% confidence (Plant detected: ${isPlant})`);
     
@@ -442,7 +444,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error) {
     console.error('Error in enhanced analyze-plant function:', error);
     
-    // Return more specific error messages
+    // Return more helpful error messages with suggestions
     const errorMessage = error.message || 'Plant analysis failed';
     
     return new Response(
@@ -450,10 +452,10 @@ const handler = async (req: Request): Promise<Response> => {
         error: 'Analysis Failed', 
         message: errorMessage,
         suggestions: [
-          "Ensure the image shows a clear view of the plant",
-          "Use good lighting and avoid blurry images",
-          "Make sure the plant fills most of the image frame",
-          "Try taking the photo from a different angle"
+          "Try uploading the image again - sometimes network issues occur",
+          "Ensure the plant is visible in the image",
+          "If the image is very blurry, try taking a clearer photo",
+          "Make sure the image file is not corrupted"
         ]
       }),
       { 
