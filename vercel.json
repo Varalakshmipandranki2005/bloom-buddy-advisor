@@ -1,0 +1,14 @@
+
+{
+  "functions": {
+    "supabase/functions/analyze-plant/index.ts": {
+      "runtime": "edge"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,12 +1,9 @@
 
-import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Leaf, User } from "lucide-react";
+import { Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Header = () => {
-  const { user } = useAuth();
-  
   return (
     <header className="bg-white shadow-sm border-b border-green-100">
       <div className="container mx-auto px-4 py-4">
@@ -34,18 +31,9 @@ const Header = () => {
           </nav>
           
           <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-2 text-green-700">
-                <User className="w-4 h-4" />
-                <span className="text-sm">Welcome back!</span>
-              </div>
-            ) : (
-              <Link to="/auth">
-                <Button className="plant-gradient text-white">
-                  Sign In
-                </Button>
-              </Link>
-            )}
+            <Button className="plant-gradient text-white">
+              Get Started
+            </Button>
           </div>
         </div>
       </div>

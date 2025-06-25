@@ -1,73 +1,85 @@
-# Welcome to your Lovable project
 
-## Project info
+# CropCare AI - Plant Health Analysis App
 
-**URL**: https://lovable.dev/projects/7fe4811a-db56-4e78-9d86-d2f5520f315b
+A React-based web application that uses AI to analyze plant health and provide medication recommendations.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Plant Image Analysis**: Upload plant photos for AI-powered identification
+- **Comprehensive Health Assessment**: Detailed plant health analysis
+- **Medication Recommendations**: Personalized treatment suggestions based on plant conditions
+- **User-Friendly Interface**: Clean, responsive design built with Tailwind CSS and shadcn/ui
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7fe4811a-db56-4e78-9d86-d2f5520f315b) and start prompting.
+- **Frontend**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **Backend**: Supabase Edge Functions
+- **Deployment**: Vercel
+- **AI**: Custom plant analysis algorithms
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js 18+ or Bun
+- Supabase account (for backend functions)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Installation
 
-Follow these steps:
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. Open [http://localhost:5173](http://localhost:5173) in your browser
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Deployment
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+This app is ready for deployment on Vercel:
+
+1. Connect your GitHub repository to Vercel
+2. Set up the Supabase integration if needed
+3. Deploy with one click
+
+The app includes a `vercel.json` configuration file for optimal deployment settings.
+
+## Usage
+
+1. **Upload Plant Image**: Click to upload or drag and drop a plant photo
+2. **Fill Plant Information**: Provide details about your plant's condition, location, and symptoms
+3. **Get Analysis**: Receive AI-powered plant identification and health assessment
+4. **Follow Recommendations**: Apply the suggested treatments and medications
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+├── pages/              # Page components
+├── integrations/       # External service integrations
+├── hooks/              # Custom React hooks
+├── lib/                # Utility functions
+└── types/              # TypeScript type definitions
 ```
 
-**Edit a file directly in GitHub**
+## Contributing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/7fe4811a-db56-4e78-9d86-d2f5520f315b) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is licensed under the MIT License.
