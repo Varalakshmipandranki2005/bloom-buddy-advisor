@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ImageUpload from "@/components/ImageUpload";
+import PlantInfoForm from "@/components/PlantInfoForm";
 import PlantResult from "@/components/PlantResult";
 import UserProfile from "@/components/UserProfile";
 import Footer from "@/components/Footer";
@@ -13,12 +14,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Lightbulb, Loader2 } from "lucide-react";
 
+interface PlantInfoFormData {
+  location: string;
+  symptoms: string;
+  plantAge: string;
+  soilType: string;
+  wateringFrequency: string;
+  fertilizationHistory: string;
+  pestHistory: string;
+  environmentalStress: string;
+  urgency: 'low' | 'medium' | 'high';
+}
+
 const Index = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [plantData, setPlantData] = useState(null);
   const [analysisError, setAnalysisError] = useState(null);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [plantInfo, setPlantInfo] = useState<PlantInfoFormData | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -56,45 +71,65 @@ const Index = () => {
       console.log('Analysis saved to database successfully');
     } catch (error) {
       console.error('Failed to save analysis to database:', error);
-      // Don't show error to user as this is background operation
     }
   };
 
   const handleImageUpload = async (file: File) => {
-    console.log("Processing plant image:", file.name);
-    setIsLoading(true);
+    console.log("Image uploaded:", file.name);
+    setUploadedImage(file);
     setPlantData(null);
     setAnalysisError(null);
     
+    toast({
+      title: "Image uploaded successfully!",
+      description: "Please provide additional plant information for better medication recommendations.",
+    });
+  };
+
+  const handlePlantInfoSubmit = async (formData: PlantInfoFormData) => {
+    if (!uploadedImage) {
+      toast({
+        title: "No image uploaded",
+        description: "Please upload a plant image first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log("Processing comprehensive plant analysis...");
+    setIsLoading(true);
+    setPlantData(null);
+    setAnalysisError(null);
+    setPlantInfo(formData);
+    
     try {
-      // Convert image to base64
-      const imageData = await convertFileToBase64(file);
-      console.log("Image converted to base64, calling enhanced ML analysis...");
+      const imageData = await convertFileToBase64(uploadedImage);
+      console.log("Calling enhanced analysis with plant information...");
       
-      // Call our enhanced ML model edge function
       const { data, error } = await supabase.functions.invoke('analyze-plant', {
-        body: { imageData }
+        body: { 
+          imageData,
+          plantInfo: formData
+        }
       });
       
       if (error) {
         throw error;
       }
       
-      console.log("Enhanced ML Analysis completed:", data);
+      console.log("Comprehensive plant analysis completed:", data);
       setPlantData(data);
       
-      // Save analysis to database
       await saveAnalysisToDatabase(data);
       
       toast({
-        title: "Plant analyzed successfully!",
-        description: `Identified: ${data.name} (${data.confidence}% confidence) - Status: ${data.healthStatus}`,
+        title: "Analysis completed successfully!",
+        description: `Identified: ${data.name} - Customized recommendations generated based on your input.`,
       });
       
     } catch (error) {
       console.error("Plant analysis failed:", error);
       
-      // Handle structured error responses from the edge function
       if (error.message && error.suggestions) {
         setAnalysisError({
           message: error.message,
@@ -107,14 +142,13 @@ const Index = () => {
           variant: "destructive",
         });
       } else {
-        // Handle other types of errors
-        const errorMessage = error.message || "Analysis failed. Please try again with a clearer image.";
+        const errorMessage = error.message || "Analysis failed. Please try again.";
         setAnalysisError({
           message: errorMessage,
           suggestions: [
             "Ensure the image shows a clear view of the plant",
-            "Use good lighting and avoid blurry images", 
-            "Make sure the plant fills most of the image frame"
+            "Check that all form fields are filled correctly",
+            "Try with better lighting conditions"
           ]
         });
         
@@ -141,7 +175,7 @@ const Index = () => {
   }
 
   if (!user) {
-    return null; // Will redirect to auth
+    return null;
   }
 
   return (
@@ -157,16 +191,24 @@ const Index = () => {
               <div className="lg:col-span-3">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-green-800 mb-4">
-                    Enhanced AI-Powered Plant Health Analysis
+                    Comprehensive Plant Health Analysis & Medication Recommendations
                   </h2>
                   <p className="text-green-600 text-lg">
-                    Upload a clear photo of your crop to get instant identification, health assessment, and expert recommendations for Indian farming conditions
+                    Upload your plant photo and provide detailed information for personalized treatment recommendations
                   </p>
                 </div>
                 
-                <ImageUpload onImageUpload={handleImageUpload} isLoading={isLoading} />
+                <div className="space-y-8">
+                  <ImageUpload onImageUpload={handleImageUpload} isLoading={false} />
+                  
+                  {uploadedImage && (
+                    <PlantInfoForm 
+                      onSubmit={handlePlantInfoSubmit} 
+                      isLoading={isLoading}
+                    />
+                  )}
+                </div>
                 
-                {/* Enhanced Error Display */}
                 {analysisError && (
                   <Card className="mt-8 border-red-200 bg-red-50">
                     <CardContent className="p-6">
