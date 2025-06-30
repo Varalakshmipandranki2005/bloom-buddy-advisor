@@ -1,11 +1,8 @@
-
 import { Camera, Upload, Zap, Shield, Droplets } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-
 const HeroSection = () => {
-  return (
-    <section className="py-20 px-4">
+  return <section className="py-20 px-4">
       <div className="container mx-auto text-center">
         <h1 className="text-5xl md:text-6xl font-bold text-green-800 mb-6 leading-tight">
           Identify Plants &<br />
@@ -20,14 +17,8 @@ const HeroSection = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-          <Button size="lg" className="plant-gradient text-white hover:opacity-90 transition-opacity">
-            <Camera className="w-5 h-5 mr-2" />
-            Take Photo
-          </Button>
-          <Button size="lg" variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-            <Upload className="w-5 h-5 mr-2" />
-            Upload Image
-          </Button>
+          
+          
         </div>
 
         {/* Feature Cards */}
@@ -63,8 +54,6 @@ const HeroSection = () => {
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
