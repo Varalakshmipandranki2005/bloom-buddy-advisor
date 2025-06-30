@@ -1,0 +1,103 @@
+
+{
+  "navigation": {
+    "home": "Home",
+    "identify": "Identify Plant"
+  },
+  "hero": {
+    "title": "Identify Plants &",
+    "titleHighlight": "Get Expert Care Tips",
+    "subtitle": "Upload a photo of any plant and get instant identification, fertilizer recommendations, pest control advice, and comprehensive care guidelines.",
+    "instantId": "Instant Identification",
+    "instantIdDesc": "Advanced AI recognizes 10,000+ plant species with 98% accuracy in seconds",
+    "smartRecommendations": "Smart Recommendations",
+    "smartRecommendationsDesc": "Get personalized fertilizer and pesticide suggestions based on plant type and season",
+    "completeGuide": "Complete Care Guide",
+    "completeGuideDesc": "Detailed watering, lighting, and seasonal care instructions for optimal growth"
+  },
+  "analysis": {
+    "title": "Smart Plant Analysis & Personalized Medication Recommendations",
+    "subtitle": "Tell us about your plant and get customized treatment recommendations based on your specific situation",
+    "uploadSuccess": "Image uploaded successfully!",
+    "uploadSuccessDesc": "Please provide plant information for personalized medication recommendations.",
+    "analysisComplete": "Analysis completed successfully!",
+    "analysisCompleteDesc": "Customized recommendations generated for {{plantName}}.",
+    "analysisFailed": "Analysis failed",
+    "suggestions": "Suggestions to improve results:",
+    "suggestionsList": [
+      "Ensure the plant name is spelled correctly",
+      "Provide detailed symptom descriptions",
+      "Check that all form fields are filled properly",
+      "If image is uploaded, ensure it shows clear plant features"
+    ]
+  },
+  "form": {
+    "title": "Plant Information & Symptoms",
+    "subtitle": "Provide details about your plant for accurate medication recommendations",
+    "plantName": "Plant Name",
+    "plantNamePlaceholder": "e.g., Rice, Wheat, Tomato, Cotton, Maize",
+    "location": "Location (State/District)",
+    "locationPlaceholder": "e.g., Maharashtra, Pune",
+    "plantAge": "Plant Age",
+    "plantAgePlaceholder": "e.g., 2 months, 1 year",
+    "symptoms": "Symptoms Observed",
+    "symptomsPlaceholder": "Describe what you've noticed: yellowing leaves, spots, wilting, stunted growth, pest damage, etc.",
+    "soilType": "Soil Type",
+    "soilTypePlaceholder": "e.g., clay, loamy, sandy",
+    "wateringFrequency": "Watering Frequency",
+    "wateringFrequencyPlaceholder": "e.g., daily, weekly, as needed",
+    "fertilization": "Recent Fertilization",
+    "fertilizationPlaceholder": "What fertilizers have you used recently? When was the last application?",
+    "pestHistory": "Pest/Disease History",
+    "pestHistoryPlaceholder": "Any previous pest problems or diseases? What treatments were used?",
+    "environmental": "Environmental Conditions",
+    "environmentalPlaceholder": "Recent weather conditions, temperature extremes, drought, flooding, etc.",
+    "urgency": "How urgent is the situation?",
+    "urgencyLow": "Low - Preventive care",
+    "urgencyMedium": "Medium - Some symptoms noticed",
+    "urgencyHigh": "High - Immediate attention needed",
+    "submit": "Get Medication Recommendations",
+    "submitting": "Analyzing...",
+    "required": "{{field}} is required"
+  },
+  "results": {
+    "confidenceHigh": "High Confidence",
+    "confidenceMedium": "Medium Confidence",
+    "confidenceLow": "Low Confidence",
+    "healthy": "Healthy",
+    "stressed": "Stressed",
+    "diseased": "Diseased",
+    "userInfo": "Analysis Based on Your Information",
+    "location": "Location: {{location}}",
+    "age": "Age: {{age}}",
+    "symptoms": "Symptoms: {{symptoms}}",
+    "urgencyLevel": "Urgency Level: {{urgency}}",
+    "recommendedActions": "Recommended Actions",
+    "tabs": {
+      "medications": "Medications",
+      "care": "Care Guide",
+      "fertilizers": "Fertilizers",
+      "diseases": "Disease Info"
+    },
+    "medicationsTitle": "Personalized Medication Recommendations",
+    "medicationsDesc": "Based on your plant's condition, symptoms, and location. Follow priority order for best results.",
+    "whyRecommended": "Why recommended: {{reason}}",
+    "application": "Application: {{application}}",
+    "safety": "Safety: {{safety}}",
+    "irrigation": "Irrigation",
+    "temperature": "Temperature",
+    "soilRequirements": "Soil Requirements",
+    "plantSpacing": "Plant Spacing",
+    "commonDiseases": "Common Diseases to Monitor",
+    "frequency": "Frequency: {{frequency}}"
+  },
+  "priorities": {
+    "immediate": "Immediate",
+    "high": "High",
+    "medium": "Medium",
+    "preventive": "Preventive"
+  },
+  "footer": {
+    "copyright": "© 2024 Plant Care AI. All rights reserved."
+  }
+}

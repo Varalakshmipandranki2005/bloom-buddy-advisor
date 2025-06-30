@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
@@ -10,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Lightbulb } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 
 interface PlantInfoFormData {
   plantName: string;
@@ -25,6 +25,7 @@ interface PlantInfoFormData {
 }
 
 const Index = () => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [plantData, setPlantData] = useState(null);
   const [analysisError, setAnalysisError] = useState(null);
@@ -48,8 +49,8 @@ const Index = () => {
     setAnalysisError(null);
     
     toast({
-      title: "Image uploaded successfully!",
-      description: "Please provide plant information for personalized medication recommendations.",
+      title: t('analysis.uploadSuccess'),
+      description: t('analysis.uploadSuccessDesc'),
     });
   };
 
@@ -85,8 +86,8 @@ const Index = () => {
       setPlantData(data);
       
       toast({
-        title: "Analysis completed successfully!",
-        description: `Customized recommendations generated for ${formData.plantName}.`,
+        title: t('analysis.analysisComplete'),
+        description: t('analysis.analysisCompleteDesc', { plantName: formData.plantName }),
       });
       
     } catch (error) {
@@ -99,24 +100,19 @@ const Index = () => {
         });
         
         toast({
-          title: "Analysis failed",
+          title: t('analysis.analysisFailed'),
           description: error.message,
           variant: "destructive",
         });
       } else {
-        const errorMessage = error.message || "Analysis failed. Please try again.";
+        const errorMessage = error.message || t('analysis.analysisFailed');
         setAnalysisError({
           message: errorMessage,
-          suggestions: [
-            "Ensure the plant name is spelled correctly",
-            "Provide detailed symptom descriptions",
-            "Check that all form fields are filled properly",
-            "If image is uploaded, ensure it shows clear plant features"
-          ]
+          suggestions: t('analysis.suggestionsList', { returnObjects: true })
         });
         
         toast({
-          title: "Analysis failed",
+          title: t('analysis.analysisFailed'),
           description: errorMessage,
           variant: "destructive",
         });
@@ -137,10 +133,10 @@ const Index = () => {
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-green-800 mb-4">
-                Smart Plant Analysis & Personalized Medication Recommendations
+                {t('analysis.title')}
               </h2>
               <p className="text-green-600 text-lg">
-                Tell us about your plant and get customized treatment recommendations based on your specific situation
+                {t('analysis.subtitle')}
               </p>
             </div>
             
@@ -165,7 +161,7 @@ const Index = () => {
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
                           <Lightbulb className="w-4 h-4 text-yellow-600" />
-                          <span className="text-sm font-medium text-red-700">Suggestions to improve results:</span>
+                          <span className="text-sm font-medium text-red-700">{t('analysis.suggestions')}</span>
                         </div>
                         <ul className="space-y-1 ml-6">
                           {analysisError.suggestions.map((suggestion, index) => (
