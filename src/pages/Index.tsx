@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Lightbulb } from "lucide-react";
 
 interface PlantInfoFormData {
+  plantName: string;
   location: string;
   symptoms: string;
   plantAge: string;
@@ -48,29 +49,26 @@ const Index = () => {
     
     toast({
       title: "Image uploaded successfully!",
-      description: "Please provide additional plant information for better medication recommendations.",
+      description: "Please provide plant information for personalized medication recommendations.",
     });
   };
 
   const handlePlantInfoSubmit = async (formData: PlantInfoFormData) => {
-    if (!uploadedImage) {
-      toast({
-        title: "No image uploaded",
-        description: "Please upload a plant image first.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    console.log("Processing comprehensive plant analysis...");
+    console.log("Processing plant analysis with user information...");
     setIsLoading(true);
     setPlantData(null);
     setAnalysisError(null);
     setPlantInfo(formData);
     
     try {
-      const imageData = await convertFileToBase64(uploadedImage);
-      console.log("Calling enhanced analysis with plant information...");
+      let imageData = null;
+      
+      // Convert image to base64 if uploaded
+      if (uploadedImage) {
+        imageData = await convertFileToBase64(uploadedImage);
+      }
+      
+      console.log("Calling plant analysis with plant name and information...");
       
       const { data, error } = await supabase.functions.invoke('analyze-plant', {
         body: { 
@@ -83,12 +81,12 @@ const Index = () => {
         throw error;
       }
       
-      console.log("Comprehensive plant analysis completed:", data);
+      console.log("Plant analysis completed:", data);
       setPlantData(data);
       
       toast({
         title: "Analysis completed successfully!",
-        description: `Identified: ${data.name} - Customized recommendations generated based on your input.`,
+        description: `Customized recommendations generated for ${formData.plantName}.`,
       });
       
     } catch (error) {
@@ -110,9 +108,10 @@ const Index = () => {
         setAnalysisError({
           message: errorMessage,
           suggestions: [
-            "Ensure the image shows a clear view of the plant",
-            "Check that all form fields are filled correctly",
-            "Try with better lighting conditions"
+            "Ensure the plant name is spelled correctly",
+            "Provide detailed symptom descriptions",
+            "Check that all form fields are filled properly",
+            "If image is uploaded, ensure it shows clear plant features"
           ]
         });
         
@@ -138,22 +137,20 @@ const Index = () => {
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-green-800 mb-4">
-                Comprehensive Plant Health Analysis & Medication Recommendations
+                Smart Plant Analysis & Personalized Medication Recommendations
               </h2>
               <p className="text-green-600 text-lg">
-                Upload your plant photo and provide detailed information for personalized treatment recommendations
+                Tell us about your plant and get customized treatment recommendations based on your specific situation
               </p>
             </div>
             
             <div className="space-y-8">
               <ImageUpload onImageUpload={handleImageUpload} isLoading={false} />
               
-              {uploadedImage && (
-                <PlantInfoForm 
-                  onSubmit={handlePlantInfoSubmit} 
-                  isLoading={isLoading}
-                />
-              )}
+              <PlantInfoForm 
+                onSubmit={handlePlantInfoSubmit} 
+                isLoading={isLoading}
+              />
             </div>
             
             {analysisError && (

@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const corsHeaders = {
@@ -344,10 +345,13 @@ const indianPlantDatabase = {
   }
 };
 
-// Enhanced medication recommendation system
-function generateMedicationRecommendations(plantType: string, plantInfo: any, healthStatus: string, confidence: number): any[] {
-  const plant = indianPlantDatabase[plantType.toLowerCase()];
-  if (!plant) return [];
+// Enhanced medication recommendation system based on plant name and user information
+function generateMedicationRecommendations(plantName: string, plantInfo: any): any[] {
+  const plant = indianPlantDatabase[plantName.toLowerCase()];
+  if (!plant) {
+    // If plant not in database, return generic recommendations based on symptoms
+    return generateGenericRecommendations(plantInfo);
+  }
 
   const recommendations = [];
   const { symptoms, urgency, location, environmentalStress, pestHistory } = plantInfo || {};
@@ -355,64 +359,77 @@ function generateMedicationRecommendations(plantType: string, plantInfo: any, he
   // Base medications from plant database
   let baseMedications = [...plant.pesticides];
 
-  // Symptom-based recommendations
+  // Symptom-based recommendations specific to the plant
   if (symptoms) {
     const symptomsLower = symptoms.toLowerCase();
     
     if (symptomsLower.includes('yellow') || symptomsLower.includes('chlorosis')) {
       recommendations.push({
         name: "Zinc Sulphate + Iron Chelate",
-        target: "Nutrient deficiency (Yellowing leaves)",
-        application: "Foliar spray 2g/L + soil application",
+        target: `Nutrient deficiency in ${plant.name}`,
+        application: "Foliar spray 2g/L + soil application for better absorption",
         safety: "Safe for organic farming. Apply during cooler hours.",
         priority: "High",
-        reason: "Yellowing symptoms suggest micronutrient deficiency"
+        reason: `Yellowing in ${plant.name} commonly indicates micronutrient deficiency`
       });
     }
 
     if (symptomsLower.includes('spot') || symptomsLower.includes('blight')) {
       recommendations.push({
         name: "Copper Oxychloride 50% WP",
-        target: "Fungal diseases causing spots",
-        application: "Spray 3g/L water every 10-15 days",
-        safety: "Wear protective gear. Avoid during flowering.",
+        target: `Fungal diseases specific to ${plant.name}`,
+        application: "Spray 3g/L water every 10-15 days as preventive measure",
+        safety: "Wear protective gear. Avoid during flowering period.",
         priority: urgency === 'high' ? "Immediate" : "High",
-        reason: "Leaf spots indicate fungal infection"
+        reason: `${plant.name} is susceptible to ${plant.commonDiseases[0]} and similar fungal infections`
       });
     }
 
     if (symptomsLower.includes('wilt') || symptomsLower.includes('droop')) {
       recommendations.push({
         name: "Trichoderma viride Bio-fungicide",
-        target: "Root rot and wilting diseases",
-        application: "Soil drench 5g/L water around root zone",
-        safety: "Biological control - safe for environment.",
+        target: `Root rot and wilting diseases in ${plant.name}`,
+        application: "Soil drench 5g/L water around root zone, repeat weekly",
+        safety: "Biological control - environmentally safe and beneficial.",
         priority: "Immediate",
-        reason: "Wilting suggests root system problems"
+        reason: `Wilting in ${plant.name} often indicates soil-borne pathogens affecting root system`
       });
     }
 
     if (symptomsLower.includes('insect') || symptomsLower.includes('pest') || symptomsLower.includes('damage')) {
+      const commonPest = plant.pesticides[0]?.target || "general pests";
       recommendations.push({
         name: "Neem Oil 1500 ppm",
-        target: "General pest control",
-        application: "Spray 5ml/L water in evening hours",
+        target: `${commonPest} commonly affecting ${plant.name}`,
+        application: "Spray 5ml/L water in evening hours, repeat every 7-10 days",
         safety: "Organic approved. Safe for beneficial insects when used correctly.",
         priority: urgency === 'high' ? "Immediate" : "Medium",
-        reason: "Pest damage requires immediate attention"
+        reason: `${plant.name} is particularly vulnerable to ${commonPest}`
       });
     }
+  }
+
+  // Plant-specific disease prevention
+  if (plant.commonDiseases.length > 0) {
+    recommendations.push({
+      name: `Preventive Fungicide for ${plant.name}`,
+      target: plant.commonDiseases[0],
+      application: "Apply as per manufacturer's instructions during vulnerable growth stages",
+      safety: "Follow label instructions and pre-harvest interval.",
+      priority: "Preventive",
+      reason: `${plant.name} is highly susceptible to ${plant.commonDiseases[0]}`
+    });
   }
 
   // Urgency-based recommendations
   if (urgency === 'high') {
     recommendations.push({
       name: "Systemic Plant Activator (Potassium Phosphonate)",
-      target: "Emergency plant health booster",
-      application: "Foliar spray 2ml/L + soil drench",
-      safety: "Non-toxic systemic treatment. Use as directed.",
+      target: `Emergency plant health booster for ${plant.name}`,
+      application: "Foliar spray 2ml/L + soil drench for immediate plant defense activation",
+      safety: "Non-toxic systemic treatment. Safe for frequent use.",
       priority: "Immediate",
-      reason: "High urgency situation requires systemic intervention"
+      reason: `High urgency situation requires immediate systemic intervention for ${plant.name}`
     });
   }
 
@@ -423,49 +440,11 @@ function generateMedicationRecommendations(plantType: string, plantInfo: any, he
     if (stressLower.includes('drought') || stressLower.includes('water stress')) {
       recommendations.push({
         name: "Seaweed Extract + Humic Acid",
-        target: "Drought stress recovery",
-        application: "Foliar spray 2ml/L weekly",
-        safety: "Organic growth enhancer. Safe for all crops.",
+        target: `Drought stress recovery for ${plant.name}`,
+        application: "Foliar spray 2ml/L weekly during stress period",
+        safety: "Organic growth enhancer. Safe for all growth stages.",
         priority: "Medium",
-        reason: "Drought stress requires plant vigor enhancement"
-      });
-    }
-
-    if (stressLower.includes('heat') || stressLower.includes('temperature')) {
-      recommendations.push({
-        name: "Kaolin Clay (Surround WP)",
-        target: "Heat stress protection",
-        application: "Foliar spray 25g/L for plant cooling",
-        safety: "Physical barrier. Food grade safe.",
-        priority: "Medium",
-        reason: "Heat stress protection through reflective coating"
-      });
-    }
-  }
-
-  // Location-specific recommendations (based on common regional issues)
-  if (location) {
-    const locationLower = location.toLowerCase();
-    
-    if (locationLower.includes('maharashtra') || locationLower.includes('gujarat')) {
-      recommendations.push({
-        name: "Bordeaux Mixture",
-        target: "Regional fungal diseases",
-        application: "Spray 1% solution fortnightly",
-        safety: "Traditional fungicide. Avoid during flowering.",
-        priority: "Preventive",
-        reason: "Common fungal issues in Maharashtra/Gujarat region"
-      });
-    }
-
-    if (locationLower.includes('punjab') || locationLower.includes('haryana')) {
-      recommendations.push({
-        name: "Phosphoric Acid based Fertilizer",
-        target: "Alkaline soil correction",
-        application: "Soil application as per soil test",
-        safety: "Acidifying agent. Test soil pH before use.",
-        priority: "Medium",
-        reason: "Alkaline soils common in Punjab/Haryana"
+        reason: `${plant.name} requires specific water management: ${plant.careInstructions.water}`
       });
     }
   }
@@ -486,151 +465,102 @@ function generateMedicationRecommendations(plantType: string, plantInfo: any, he
   return combinedMedications.slice(0, 6); // Return top 6 recommendations
 }
 
-// Advanced image analysis with multiple feature detection
-async function analyzeImageFeatures(imageData: string): Promise<{
-  hasPlantFeatures: boolean,
-  visualCues: string[],
-  confidence: number,
-  estimatedPlant: string[]
-}> {
-  try {
-    const base64Data = imageData.split(',')[1];
-    const imageSize = (base64Data.length * 3) / 4;
+// Generic recommendations for plants not in database
+function generateGenericRecommendations(plantInfo: any): any[] {
+  const recommendations = [];
+  const { symptoms, urgency } = plantInfo || {};
+
+  if (symptoms) {
+    const symptomsLower = symptoms.toLowerCase();
     
-    // Simulate advanced computer vision analysis
-    const hasPlantFeatures = Math.random() > 0.05; // 95% chance it's a plant
-    
-    if (!hasPlantFeatures) {
-      return {
-        hasPlantFeatures: false,
-        visualCues: ["No clear plant structures detected"],
-        confidence: 20,
-        estimatedPlant: []
-      };
+    if (symptomsLower.includes('yellow')) {
+      recommendations.push({
+        name: "Multi-micronutrient Fertilizer",
+        target: "Nutrient deficiency causing yellowing",
+        application: "Foliar spray 2g/L water weekly",
+        safety: "Safe for all plants. Apply during cooler hours.",
+        priority: "High",
+        reason: "Yellowing leaves commonly indicate micronutrient deficiency"
+      });
     }
-    
-    // Simulate feature detection based on common plant characteristics
-    const detectedFeatures = [];
-    const plantProbabilities = {};
-    
-    // Simulate leaf shape detection
-    const leafShapes = ["broad", "narrow", "compound", "simple", "lobed"];
-    const detectedLeafShape = leafShapes[Math.floor(Math.random() * leafShapes.length)];
-    detectedFeatures.push(`${detectedLeafShape} leaves detected`);
-    
-    // Simulate stem characteristics
-    const stemTypes = ["thick", "thin", "branched", "single", "woody", "herbaceous"];
-    const detectedStem = stemTypes[Math.floor(Math.random() * stemTypes.length)];
-    detectedFeatures.push(`${detectedStem} stem structure`);
-    
-    // Simulate growth pattern detection
-    const growthPatterns = ["bushy", "tall", "climbing", "spreading", "upright"];
-    const detectedGrowth = growthPatterns[Math.floor(Math.random() * growthPatterns.length)];
-    detectedFeatures.push(`${detectedGrowth} growth pattern`);
-    
-    // Enhanced plant identification based on visual characteristics
-    Object.keys(indianPlantDatabase).forEach(plantKey => {
-      const plant = indianPlantDatabase[plantKey];
-      let score = 0;
-      
-      // Match leaf characteristics
-      if (detectedLeafShape === "broad" && plant.visualCharacteristics.leaves.includes("broad")) score += 25;
-      if (detectedLeafShape === "narrow" && plant.visualCharacteristics.leaves.includes("narrow")) score += 25;
-      if (detectedLeafShape === "compound" && plant.visualCharacteristics.leaves.includes("compound")) score += 25;
-      if (detectedLeafShape === "lobed" && plant.visualCharacteristics.leaves.includes("lobed")) score += 25;
-      
-      // Match stem characteristics
-      if (detectedStem === "thick" && plant.visualCharacteristics.stem.includes("thick")) score += 20;
-      if (detectedStem === "woody" && plant.visualCharacteristics.stem.includes("woody")) score += 20;
-      if (detectedStem === "herbaceous" && plant.visualCharacteristics.stem.includes("herbaceous")) score += 20;
-      if (detectedStem === "branched" && plant.visualCharacteristics.stem.includes("branch")) score += 15;
-      
-      // Match growth pattern
-      if (detectedGrowth === "bushy" && plant.visualCharacteristics.growth.includes("bush")) score += 20;
-      if (detectedGrowth === "tall" && plant.visualCharacteristics.growth.includes("tall")) score += 20;
-      if (detectedGrowth === "climbing" && plant.visualCharacteristics.growth.includes("climb")) score += 20;
-      
-      // Add some randomness to simulate real ML uncertainty
-      score += Math.random() * 30;
-      
-      plantProbabilities[plantKey] = score;
-    });
-    
-    // Sort plants by probability
-    const sortedPlants = Object.entries(plantProbabilities)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([plant, score]) => ({ plant, score: score as number }));
-    
-    const topPlant = sortedPlants[0];
-    const confidence = Math.min(95, Math.max(60, topPlant.score + Math.random() * 20));
-    
-    return {
-      hasPlantFeatures: true,
-      visualCues: detectedFeatures,
-      confidence: Math.round(confidence),
-      estimatedPlant: [topPlant.plant]
-    };
-    
-  } catch (error) {
-    return {
-      hasPlantFeatures: false,
-      visualCues: ["Error analyzing image features"],
-      confidence: 10,
-      estimatedPlant: []
-    };
+
+    if (symptomsLower.includes('spot') || symptomsLower.includes('disease')) {
+      recommendations.push({
+        name: "Copper-based Fungicide",
+        target: "Fungal and bacterial diseases",
+        application: "Spray 3g/L water every 10-15 days",
+        safety: "Use protective equipment. Follow harvest interval.",
+        priority: urgency === 'high' ? "Immediate" : "High",
+        reason: "Spots and lesions typically indicate fungal infections"
+      });
+    }
   }
+
+  recommendations.push({
+    name: "Neem Oil",
+    target: "General pest and disease management",
+    application: "Spray 5ml/L water in evening hours",
+    safety: "Organic and safe for beneficial insects.",
+    priority: "Medium",
+    reason: "Broad-spectrum organic protection for most plants"
+  });
+
+  return recommendations;
 }
 
-// Enhanced plant classification with better accuracy
-async function classifyPlantAdvanced(imageData: string): Promise<{
-  plant: string,
-  confidence: number,
-  isPlant: boolean,
-  analysisDetails: any
-}> {
-  console.log("Starting advanced plant classification with enhanced feature detection...");
+// Plant analysis function that uses plant name as primary identifier
+async function analyzePlantByName(plantName: string, plantInfo: any, imageData?: string): Promise<any> {
+  console.log(`Analyzing plant: ${plantName} with user-provided information...`);
   
-  // Perform advanced image analysis
-  const featureAnalysis = await analyzeImageFeatures(imageData);
+  const plant = indianPlantDatabase[plantName.toLowerCase()];
   
-  if (!featureAnalysis.hasPlantFeatures) {
-    throw new Error("This image doesn't appear to contain a clear plant. Please upload an image showing more plant details.");
-  }
-  
-  console.log("Visual features detected:", featureAnalysis.visualCues);
-  
-  if (featureAnalysis.estimatedPlant.length === 0) {
-    throw new Error("Unable to identify the plant type. Please try with a clearer image showing leaves, stems, or other plant features.");
-  }
-  
-  const identifiedPlant = featureAnalysis.estimatedPlant[0];
-  const confidence = featureAnalysis.confidence;
-  
-  console.log(`Advanced analysis identified: ${identifiedPlant} with ${confidence}% confidence`);
-  
-  return {
-    plant: identifiedPlant,
-    confidence: confidence,
-    isPlant: true,
-    analysisDetails: {
-      visualFeatures: featureAnalysis.visualCues,
-      methodology: "Enhanced computer vision with plant characteristic matching"
-    }
-  };
-}
-
-// Enhanced plant health assessment with user information
-function assessPlantHealthAdvanced(plantType: string, confidence: number, analysisDetails: any, plantInfo: any): any {
-  const plant = indianPlantDatabase[plantType.toLowerCase()];
   if (!plant) {
-    throw new Error('Plant type not supported in our enhanced database');
+    // Handle unknown plants
+    console.log(`Plant "${plantName}" not found in database, providing generic recommendations...`);
+    
+    const genericRecommendations = generateGenericRecommendations(plantInfo);
+    
+    return {
+      name: plantName,
+      scientificName: "Classification pending",
+      confidence: 75,
+      healthStatus: plantInfo.urgency === 'high' ? "needs attention" : "monitoring required",
+      description: `Based on your input, we're providing general care recommendations for ${plantName}. For more specific guidance, please consult with local agricultural experts.`,
+      visualCharacteristics: {
+        leaves: "Information not available",
+        stem: "Information not available",
+        growth: "Information not available"
+      },
+      analysisMethod: "User-provided plant name with symptom analysis",
+      userProvidedInfo: plantInfo || {},
+      care: {
+        water: "Maintain adequate moisture based on plant type and local conditions",
+        temperature: "Protect from extreme weather conditions",
+        soil: "Ensure well-drained soil with appropriate pH",
+        spacing: "Follow recommended spacing for your plant variety"
+      },
+      fertilizers: [
+        {
+          name: "Balanced NPK Fertilizer",
+          type: "Synthetic",
+          application: "Apply as per soil test recommendations",
+          frequency: "Monthly during growing season"
+        }
+      ],
+      pesticides: genericRecommendations,
+      diseases: ["Monitor for common local plant diseases"],
+      recommendations: [
+        `Continue monitoring ${plantName} for symptom changes`,
+        "Maintain proper watering and nutrition schedule",
+        "Consult local agricultural extension for region-specific advice",
+        "Consider soil testing for optimal fertilizer recommendations"
+      ]
+    };
   }
 
-  console.log(`Performing comprehensive health assessment for ${plant.name} with user information...`);
-
+  // For known plants, provide comprehensive analysis
   let healthScore = "healthy";
-  let healthConfidence = confidence;
+  let healthConfidence = 85;
   
   // Adjust health assessment based on user-provided symptoms
   if (plantInfo && plantInfo.symptoms) {
@@ -640,55 +570,54 @@ function assessPlantHealthAdvanced(plantType: string, confidence: number, analys
         symptoms.includes('spot') || symptoms.includes('disease') ||
         symptoms.includes('pest') || symptoms.includes('damage')) {
       healthScore = plantInfo.urgency === 'high' ? "diseased" : "stressed";
-      healthConfidence = Math.max(75, confidence);
+      healthConfidence = Math.max(75, healthConfidence);
     }
   }
 
-  // Generate customized recommendations based on all available information
-  const customRecommendations = generateMedicationRecommendations(plantType, plantInfo, healthScore, confidence);
+  // Generate customized recommendations
+  const customRecommendations = generateMedicationRecommendations(plantName, plantInfo);
 
   let recommendations = [];
   
   if (healthScore === "diseased") {
     recommendations.push(
-      `Immediate attention required - ${plant.commonDiseases[0]} symptoms detected`,
-      "Isolate affected plants to prevent spread",
-      "Apply recommended treatment according to priority level",
-      "Monitor daily and adjust treatment as needed",
+      `Immediate attention required for ${plant.name}`,
+      `Monitor for ${plant.commonDiseases[0]} which is common in ${plant.name}`,
+      "Apply recommended treatments according to priority level",
+      "Isolate affected plants if possible to prevent spread",
       "Consider consulting local agricultural extension officer"
     );
   } else if (healthScore === "stressed") {
     recommendations.push(
-      `Plant showing stress symptoms - preventive measures recommended`,
-      "Check environmental conditions (water, soil, temperature)",
+      `${plant.name} showing stress symptoms - preventive measures recommended`,
+      `Check environmental conditions: ${plant.careInstructions.temperature}`,
       "Apply recommended treatments based on symptom analysis",
       "Increase monitoring frequency for next 2-3 weeks",
-      "Maintain proper nutrition and care schedule"
+      `Follow proper care instructions for ${plant.name}`
     );
   } else {
     recommendations.push(
-      "Plant appears healthy based on visual and provided information",
-      "Continue current care practices",
+      `${plant.name} appears to be in good condition based on provided information`,
+      `Continue following care guidelines for ${plant.name}`,
       "Apply preventive treatments as recommended",
       "Monitor regularly for any changes",
-      "Follow seasonal care guidelines"
+      `Maintain optimal growing conditions: ${plant.careInstructions.water}`
     );
   }
 
   // Add location-specific advice if provided
   if (plantInfo && plantInfo.location) {
-    recommendations.push(`Location-specific advice: Consult local agricultural extension in ${plantInfo.location} for region-specific guidance`);
+    recommendations.push(`Location-specific advice: Consult local agricultural extension in ${plantInfo.location} for region-specific guidance on ${plant.name} cultivation`);
   }
 
   return {
     name: plant.name,
     scientificName: plant.scientificName,
-    confidence: Math.max(60, healthConfidence),
+    confidence: Math.max(75, healthConfidence),
     healthStatus: healthScore,
     description: plant.description,
     visualCharacteristics: plant.visualCharacteristics,
-    analysisMethod: "Enhanced computer vision with user-provided plant information",
-    detectedFeatures: analysisDetails.visualFeatures,
+    analysisMethod: "Plant name identification with comprehensive symptom analysis",
     userProvidedInfo: plantInfo || {},
     care: plant.careInstructions,
     fertilizers: plant.fertilizers,
@@ -706,21 +635,20 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { imageData, plantInfo } = await req.json();
     
-    if (!imageData) {
-      throw new Error('No image data provided');
+    if (!plantInfo || !plantInfo.plantName) {
+      throw new Error('Plant name is required for analysis');
     }
 
-    console.log('Starting comprehensive plant analysis with user information...');
+    console.log('Starting plant analysis based on plant name and user information...');
+    console.log('Plant name provided:', plantInfo.plantName);
+    
     if (plantInfo) {
       console.log('User provided additional plant information:', plantInfo);
     }
     
-    const { plant, confidence, isPlant, analysisDetails } = await classifyPlantAdvanced(imageData);
-    console.log(`Enhanced classification result: ${plant} (${confidence}% confidence)`);
+    const plantAnalysis = await analyzePlantByName(plantInfo.plantName, plantInfo, imageData);
     
-    const plantAnalysis = assessPlantHealthAdvanced(plant, confidence, analysisDetails, plantInfo);
-    
-    console.log('Comprehensive plant analysis completed successfully with user information');
+    console.log('Plant analysis completed successfully based on plant name:', plantInfo.plantName);
 
     return new Response(JSON.stringify(plantAnalysis), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -728,7 +656,7 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
   } catch (error) {
-    console.error('Error in comprehensive analyze-plant function:', error);
+    console.error('Error in plant analysis function:', error);
     
     const errorMessage = error.message || 'Plant analysis failed';
     
@@ -737,10 +665,10 @@ const handler = async (req: Request): Promise<Response> => {
         error: 'Analysis Failed', 
         message: errorMessage,
         suggestions: [
-          "Ensure the image shows clear plant features",
-          "Fill out the plant information form completely",
-          "Try taking the photo in good lighting conditions",
-          "Provide detailed symptom descriptions for better recommendations",
+          "Ensure the plant name is spelled correctly",
+          "Provide detailed symptom descriptions in the form",
+          "Fill out all relevant fields in the plant information form",
+          "Check the urgency level matches your plant's condition",
           "If problem persists, consult local agricultural extension"
         ]
       }),

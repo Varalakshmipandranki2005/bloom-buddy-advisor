@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Leaf, MapPin } from "lucide-react";
 
 interface PlantInfoFormData {
+  plantName: string;
   location: string;
   symptoms: string;
   plantAge: string;
@@ -29,6 +30,7 @@ interface PlantInfoFormProps {
 const PlantInfoForm = ({ onSubmit, isLoading = false }: PlantInfoFormProps) => {
   const form = useForm<PlantInfoFormData>({
     defaultValues: {
+      plantName: '',
       location: '',
       symptoms: '',
       plantAge: '',
@@ -49,12 +51,30 @@ const PlantInfoForm = ({ onSubmit, isLoading = false }: PlantInfoFormProps) => {
           Plant Information & Symptoms
         </CardTitle>
         <p className="text-green-600 text-sm">
-          Provide additional details about your plant for more accurate medication recommendations
+          Provide details about your plant for accurate medication recommendations
         </p>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="plantName"
+              rules={{ required: "Plant name is required" }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center">
+                    <Leaf className="w-4 h-4 mr-1" />
+                    Plant Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Rice, Wheat, Tomato, Cotton, Maize" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
