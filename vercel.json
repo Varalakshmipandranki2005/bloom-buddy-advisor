@@ -1,7 +1,7 @@
 
 {
   "functions": {
-    "supabase/functions/analyze-plant/index.ts": {
+    "supabase/functions/*/index.ts": {
       "runtime": "edge"
     }
   },
